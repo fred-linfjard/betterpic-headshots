@@ -48,7 +48,7 @@ server.registerResource(
       uri: "ui://widget/headshots.html",
       mimeType: "text/html+skybridge",
       text: widgetHtml,
-      _meta: { "openai/widgetPrefersBorder": true }
+      _meta: { "openai/widgetPrefersBorder": true, "openai/widgetCSP": { "connect_domains": ["https://betterpic-headshots-production.up.railway.app"], "resource_domains": ["https://persistent.oaistatic.com"] } }
     }]
   })
 );
@@ -126,6 +126,7 @@ app.post('/mcp', async (req, res) => {
               inputSchema: scoreImagesSchema,
               _meta: {
                 "openai/outputTemplate": "ui://widget/headshots.html",
+                "openai/widgetCSP": { "connect_domains": ["https://betterpic-headshots-production.up.railway.app"], "resource_domains": ["https://persistent.oaistatic.com"] },
                 "openai/toolInvocation/invoking": "Scoring images",
                 "openai/toolInvocation/invoked": "Images scored",
                 "openai/widgetAccessible": true,
@@ -325,7 +326,7 @@ app.post('/mcp', async (req, res) => {
           jsonrpc: '2.0',
           id,
           result: {
-            contents: [{ uri, mimeType: 'text/html+skybridge', text: widgetHtml, _meta: { "openai/widgetPrefersBorder": true } }]
+            contents: [{ uri, mimeType: 'text/html+skybridge', text: widgetHtml, _meta: { "openai/widgetPrefersBorder": true, "openai/widgetCSP": { "connect_domains": ["https://betterpic-headshots-production.up.railway.app"], "resource_domains": ["https://persistent.oaistatic.com"] } } }]
           }
         });
       }

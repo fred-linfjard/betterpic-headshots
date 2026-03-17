@@ -243,28 +243,31 @@
       const base64 = await fileToBase64(file);
 
       // Call proxy on our server (avoids CORS)
-      const serverUrl = 'https://betterpic-headshots-production.up.railway.app';
-      const response = await fetch(serverUrl + '/proxy/score', {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'ngrok-skip-browser-warning': 'true'
-        },
-        body: JSON.stringify({ image_base64: base64, mime_type: file.type })
-      });
-
-      if (!response.ok) throw new Error('Score failed: ' + response.status);
-      const data = await response.json();
-
+      let scoreData;
+      if (window.openai?.uploadFile && window.openai?.getFileDownloadUrl) {
+        const { fileId } = await window.openai.uploadFile(file);
+        const { downloadUrl } = await window.openai.getFileDownloadUrl({ fileId });
+        const result = await callToolAndWait('score-images', { images: [downloadUrl] });
+        scoreData = result?.results?.[0];
+      } else {
+        const base64 = await fileToBase64(file);
+        const response = await fetch(
+          'https://betterpic-headshots-production.up.railway.app/proxy/score',
+          { method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ image_base64: base64, mime_type: file.type }) }
+        );
+        if (!response.ok) throw new Error('Score failed: ' + response.status);
+        scoreData = await response.json();
+      }
+      if (!scoreData) throw new Error('No score returned');
       const img = images.find(i => i.tempId === tempId);
       if (img) {
         Object.assign(img, {
-          status: 'scored',
-          imageUrl: base64,
-          quality_score: data.quality_score,
-          brightness: data.brightness,
-          sharpness: data.sharpness,
-          tips: data.tips || []
+          status: 'scored', imageUrl: objectUrl,
+          quality_score: scoreData.quality_score,
+          brightness: scoreData.brightness,
+          sharpness: scoreData.sharpness,
+          tips: scoreData.tips || []
         });
       }
     } catch (err) {
