@@ -13,8 +13,10 @@ const widgetHtml = fs.readFileSync(path.join(publicDir, "index.html"), "utf-8");
 const app = express();
 app.use(express.json());
 app.use(cors({
-    origin: ['https://chatgpt.com', 'https://chat.openai.com'],
-    credentials: true
+    origin: '*',
+    methods: ['GET', 'POST', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'ngrok-skip-browser-warning'],
+    credentials: false
 }));
 const server = new McpServer({
     name: "headshots-generator",
