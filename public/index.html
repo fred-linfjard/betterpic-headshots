@@ -275,7 +275,7 @@
       const img = images.find(i => i.tempId === tempId);
       if (img) {
         Object.assign(img, {
-          status: 'scored', imageUrl: objectUrl,
+          status: 'scored', imageUrl: downloadUrl || objectUrl,
           quality_score: scoreData.quality_score,
           brightness: scoreData.brightness,
           sharpness: scoreData.sharpness,
