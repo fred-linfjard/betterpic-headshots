@@ -58,9 +58,19 @@ const port = Number(process.env.PORT ?? 8000);
 
 
 // Proxy endpoint for widget to call Runflow without CORS issues
-app.post('/proxy/score', async (req, res) => {
+app.post('/proxy/score', express.raw({ type: '*/*', limit: '20mb' }), async (req: any, res: any) => {
   try {
-    const { image_base64, mime_type } = req.body;
+    const contentType = (req.headers['content-type'] || '') as string;
+    if (contentType.includes('multipart/form-data')) {
+      const response = await fetch('https://api.runflow.io/api/v1/images/score', {
+        method: 'POST',
+        headers: { 'x-api-key': savedApiKey, 'content-type': contentType },
+        body: req.body
+      });
+      if (!response.ok) { const t = await response.text(); return res.status(response.status).json({ error: t }); }
+      return res.json(await response.json());
+    }
+    const { image_base64, mime_type } = JSON.parse(req.body.toString());
     if (!savedApiKey) {
       return res.status(401).json({ error: 'No API key. Open widget settings.' });
     }
