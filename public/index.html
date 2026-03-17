@@ -249,7 +249,9 @@
         const { fileId } = await window.openai.uploadFile(file);
         const { downloadUrl } = await window.openai.getFileDownloadUrl({ fileId });
         // Re-fetch the image as blob and POST directly to our proxy
+        console.log('Fetching downloadUrl:', downloadUrl);
         const imgRes = await fetch(downloadUrl);
+        console.log('imgRes status:', imgRes.status);
         const blob = await imgRes.blob();
         const form = new FormData();
         form.append('image', blob, file.name);
