@@ -243,7 +243,7 @@
       const base64 = await fileToBase64(file);
 
       // Call proxy on our server (avoids CORS)
-      const serverUrl = 'https://betterpic-headshots.vercel.app';
+      const serverUrl = 'https://betterpic-headshots-production.up.railway.app';
       const response = await fetch(serverUrl + '/proxy/score', {
         method: 'POST',
         headers: { 
